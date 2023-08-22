@@ -53,7 +53,6 @@ class Biomas():
         if (self.mapa_temperatura_inicio != "" and self.mapa_temperatura_mitad != "" and self.mapa_presipitacion_inicio != "" and self.mapa_presipitacion_mitad != "") == True:
             imagen_bioma = skcc.koppen(self.mapa_temperatura_inicio,self.mapa_temperatura_mitad,self.mapa_presipitacion_inicio,self.mapa_presipitacion_mitad)
             imagen_bioma.save(guardar_mapa)
-            #messagebox.showerror("terminado")
             messagebox.showinfo("Terminado",f"La imagen se guardo correctamente en {guardar_mapa}")
     
 
@@ -87,9 +86,8 @@ class Sombra_de_lluvia():
     def guardar_mapa(self):
         guardar_sombra_lluvia_imagen = filedialog.asksaveasfilename(title="guardar mapa sombra de lluvia",defaultextension=".png")
         if self.mapa_altura_imagen:
-            img = MapaAltura.Sombra_de_lluvia(self.mapa_altura_imagen,21.287,50,6371000.0)
+            img = MapaAltura.sombra_de_lluvia(self.mapa_altura_imagen,21.287,50,6371000.0)
             img.save(guardar_sombra_lluvia_imagen)
-            #messagebox.showerror("terminado")
             messagebox.showinfo("Terminado",f"La imagen se guardo correctamente en {guardar_sombra_lluvia_imagen}")
     
 

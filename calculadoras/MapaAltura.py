@@ -7,8 +7,9 @@ import math
 
 from calculadoras import skcc
 
-# funciones
 
+
+# funciones
 
 def diametro_planeta(latitud_grados, radio_ecuatorial):
     # Convertir la latitud de grados a radianes
@@ -48,7 +49,7 @@ def vector_angu_magnitud(angle_degrees, magnitude):
 
     return x, y
 
-def  _Sombra_de_lluvia(Palt,altMax,diametro,ancho):
+def  _sombra_de_lluvia(Palt,altMax,diametro,ancho):
     """
     esta funcion calcula que tan grande es la sombra de lluvia
     Palt: es el valor del pixel de altitud de 0 a 255
@@ -74,7 +75,7 @@ def _latitudes(grado,ancho):
 regla_de_tres = lambda valor_conocido_deseado, valor_deseado, valor_conocido : (valor_conocido * valor_deseado) / valor_conocido_deseado
 
 
-def Sombra_de_lluvia(img,alt_max,Alt_viento,equador_diam):
+def sombra_de_lluvia(img,alt_max,Alt_viento,equador_diam):
     """
     esta funcion lo que hara es recorrer un mapa en blanco y negro creara otra imagen con las mismas dimenciones y transparente en donde en color blanco se marcara las llamadas sombra de lluvia
     img: la ruta del mapa de altura
@@ -87,7 +88,7 @@ def Sombra_de_lluvia(img,alt_max,Alt_viento,equador_diam):
     #diametro_planeta(0,diam)
     imgen = Image.open(img)
     ancho,alto = imgen.size
-    Newimg = Image.new("RGBA", (ancho, alto), (0, 0, 0, 0))
+    newimg = Image.new("RGBA", (ancho, alto), (0, 0, 0, 0))
 
     ps1 = 0 
     Ps = -1 
@@ -106,7 +107,7 @@ def Sombra_de_lluvia(img,alt_max,Alt_viento,equador_diam):
             r = color[0]
             altura = regla_de_tres(255,100,r) # da el porcentaje de la altura
             if altura >= Alt_viento:
-                Ps = _Sombra_de_lluvia(r,alt_max,diametro,ancho)
+                Ps = _sombra_de_lluvia(r,alt_max,diametro,ancho)
                 if altura < PsA:
                     ps1 = Ps
                 PsA = altura
@@ -115,18 +116,12 @@ def Sombra_de_lluvia(img,alt_max,Alt_viento,equador_diam):
             
             if ps1 > 0:
                 color = (255,255,255,255)
-                Newimg.putpixel((x2-1,y),color)
+                newimg.putpixel((x2-1,y),color)
                 ps1 -= 1
             elif ps1 == 0:
                 color = (0,0,0,0)
-                Newimg.putpixel((x2-1,y),color)
+                newimg.putpixel((x2-1,y),color)
             else:
                 continue
 
-            
-            
-            #
-    
-    #guardar imagen
-    #Newimg.save(Save)
-    return Newimg
+    return newimg
