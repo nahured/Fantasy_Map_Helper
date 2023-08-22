@@ -4,6 +4,7 @@ from tkinter import filedialog,messagebox
 
 # Modulo propio
 from calculadoras import skcc
+from calculadoras import MapaAltura
 
 
 
@@ -47,13 +48,13 @@ class Biomas():
         else:
             self.mapa_presipitacion_mitad = img
     
-    def abrir_mapa_guarda(self):
-        print(self.mapa_temperatura_inicio,self.mapa_temperatura_mitad,self.mapa_presipitacion_inicio,self.mapa_presipitacion_mitad)
+    def guardar_mapa(self):
         guardar_mapa = filedialog.asksaveasfilename(title="Guardar el mapa climatologico de Koppen",defaultextension=".png")
         if (self.mapa_temperatura_inicio != "" and self.mapa_temperatura_mitad != "" and self.mapa_presipitacion_inicio != "" and self.mapa_presipitacion_mitad != "") == True:
             imagen_bioma = skcc.koppen(self.mapa_temperatura_inicio,self.mapa_temperatura_mitad,self.mapa_presipitacion_inicio,self.mapa_presipitacion_mitad)
             imagen_bioma.save(guardar_mapa)
-            print("terminado")
+            #messagebox.showerror("terminado")
+            messagebox.showinfo("Terminado",f"La imagen se guardo correctamente en {guardar_mapa}")
     
 
 
@@ -64,22 +65,49 @@ class Biomas():
         bioma_ventana.config(bg="gray25")
         bioma_ventana.geometry("280x130")
         bioma_ventana.resizable(width=False, height=False)
+        
 
         boton_temperatura_inicio = tk.Button(bioma_ventana,text="temperatura al principio del año",command=self.abrir_mapa_temperatura_inicio,bg="gray35").pack(side="top")
         boton_temperatura_mitad = tk.Button(bioma_ventana,text="temperatura a la mitad del año",command=self.abrir_mapa_temperatura_mitad,bg="gray35").pack(side="top")
         boton_presipitacion_inicio = tk.Button(bioma_ventana,text="precipitacion al principio del año",command=self.abrir_mapa_presipitacion_inicio,bg="gray35").pack(side="top")
         boton_presipitacion_mitad = tk.Button(bioma_ventana,text="precipitacion a la mitad del año",command=self.abrir_mapa_presipitacion_mitad,bg="gray35").pack(side="top")
-        boton_guardar = tk.Button(bioma_ventana,text="guardar mapa",command=self.abrir_mapa_guarda,bg="gray35").pack(side="top")
+        boton_guardar = tk.Button(bioma_ventana,text="guardar mapa",command=self.guardar_mapa,bg="gray35").pack(side="top")
+        bioma_ventana.lift()
 
 
 
+class Sombra_de_lluvia():
+    def __init__(self,root):
+        self.root = root
+        self.mapa_altura_imagen = ""
+    
+    def abrir_mapa_altura(self):
+        self.mapa_altura_imagen = filedialog.askopenfilename(title="Abrir mapa de altura",filetypes=[("mapa altura",".png")])
+    
+    def guardar_mapa(self):
+        guardar_sombra_lluvia_imagen = filedialog.asksaveasfilename(title="guardar mapa sombra de lluvia",defaultextension=".png")
+        if self.mapa_altura_imagen:
+            img = MapaAltura.Sombra_de_lluvia(self.mapa_altura_imagen,21.287,50,6371000.0)
+            img.save(guardar_sombra_lluvia_imagen)
+            #messagebox.showerror("terminado")
+            messagebox.showinfo("Terminado",f"La imagen se guardo correctamente en {guardar_sombra_lluvia_imagen}")
+    
 
+    def ventana(self):
+        sombra_lluvia = tk.Toplevel(self.root)
+        sombra_lluvia.title("Sombra de lluvia")
+        sombra_lluvia.config(bg="gray25")
+        sombra_lluvia.geometry("280x130")
+        sombra_lluvia.resizable(width=False, height=False)
+        
+
+        boton_mapa_altura = tk.Button(sombra_lluvia,text="Mapa de altura",command=self.abrir_mapa_altura,bg="gray35").pack(side="top")
+        boton_guardar_mapa = tk.Button(sombra_lluvia,text="guardar mapa sombra de lluvia",command=self.guardar_mapa,bg="gray35").pack(side="top")
+        sombra_lluvia.lift()
 
 
 
 def ventana_principal():
-    global etiqueta_posicion
-    global etiqueta_tecla
 
     root = tk.Tk() # ventana principal
 
@@ -116,14 +144,13 @@ def ventana_principal():
 
     #Barra de Herramientas
     clase_bioma = Biomas(root)
-    bioma_imagen = Image.open("gui\iconos\Biomas.png")
-    bioma_imagen = ImageTk.PhotoImage(bioma_imagen)
-
-
-    label3.bind('<Motion>', lambda event: mostrar_posicion_global(event)) 
-    label3.bind('<Key>', lambda event: mostrar_tecla_global(event))   
-
+    bioma_imagen = ImageTk.PhotoImage(Image.open("gui\iconos\Biomas.png"))
     boton_bioma = tk.Button(label2,image=bioma_imagen,command=clase_bioma.ventana,bg="gray25")
     boton_bioma.grid(row=0,column=0)
+
+    clase_sombra_lluvia = Sombra_de_lluvia(root)
+
+    sombra_lluvia_imagen = ImageTk.PhotoImage(Image.open("gui\iconos\Sombra_de_lluvia_imagen.png"))
+    boton_sombra_lluvia = tk.Button(label2,image= sombra_lluvia_imagen,command=clase_sombra_lluvia.ventana,bg="gray25").grid(row=0,column=1)
 
     root.mainloop()
