@@ -11,6 +11,8 @@ from calculadoras.utils.errors import *
 from calculadoras.ioHandling.inputHandler import readInputProfile, InputProfile
 from calculadoras.ioHandling.outputHandler import readOutputProfile, OutputProfile
 
+import math
+
 
 
 
@@ -63,6 +65,57 @@ pColorTableDefault = {(135, 0, 180):300.0, (130, 60, 200):170.0, (105, 70, 200):
 defaultOceanColor = (107, 165, 210)
 
 defaultUnknownColor = (0, 0, 0)
+
+
+# Función para calcular la distancia de color entre dos tuplas RGB
+def distancia_color(rgb1, rgb2):
+    r1, g1, b1 = rgb1
+    r2, g2, b2 = rgb2
+    return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
+
+# Función para reemplazar los colores de una imagen con los colores más cercanos en una lista
+def verificar_color2(modo,imagen_path):
+    # Define las listas de colores
+    tColor = ((160, 0, 65),(210, 60, 80),(245, 110, 65),(250, 175, 95),(255, 225, 140),(230, 245, 150),(170, 220, 165),(100, 195, 165),(50, 135, 190),(95, 80, 160),(107,165,210))
+    pColor = ((107, 165, 210), (135, 0, 180), (130, 60, 200), (105, 70, 200), (60, 60, 180),
+              (70, 95, 150), (55, 85, 100), (35, 50, 50), (20, 20, 20))
+
+    # Selecciona la lista de colores según el modo
+    if modo == 't':
+        lista_rgb = tColor
+    elif modo == 'p':
+        lista_rgb = pColor
+    else:
+        raise ValueError("Modo no válido. Use 't' para tColor o 'p' para pColor.")
+
+    # Abre la imagen
+    imagen = Image.open(imagen_path)
+    ancho,alto =imagen.size
+
+    # Crea una nueva imagen para almacenar el resultado
+    nueva_imagen = Image.new("RGB", imagen.size)
+    n = 0
+
+    # Itera sobre los píxeles de la imagen
+    for x in range(ancho):
+        n += 1
+        for y in range(alto):
+
+            if n >=1000:
+                n = 0
+                print(f"\r x={x} {ancho-x}|y = {y}",end="",flush=True)
+            pixel = imagen.getpixel((x, y))
+            if pixel not in lista_rgb:
+
+                # Encuentra el color más cercano en la lista_rgb
+                color_mas_cercano = min(lista_rgb, key=lambda color: distancia_color(pixel, color))
+
+                # Asigna el color más cercano al nuevo píxel
+                nueva_imagen.putpixel((x, y), color_mas_cercano)
+
+    # Retorna la nueva imagen
+    return nueva_imagen
+
 
 def verificar_color(tipo,imagen):
     tipos = "tp"
@@ -446,9 +499,9 @@ def makeRGBConversion(img1, img2, img3, img4):
 # basándose en los mapas de temperatura y precipitación de entrada, interpretados a través de los perfiles de color
 # de temperatura y precipitación de entrada.
 def buildOutput(t1name, t2name, p1name, p2name, tempProfile, precProfile, outProfile, mode='koppen'):
-    temperature1 = Image.open(t1name)
-    temperature2 = Image.open(t2name)
-    precipitation1 = Image.open(p1name)
+    temperature1 =  Image.open(t1name)
+    temperature2 =  Image.open(t2name)
+    precipitation1 =  Image.open(p1name)
     precipitation2 = Image.open(p2name)
     temps1 = temperature1.getdata()
     temps2 = temperature2.getdata()
@@ -684,3 +737,4 @@ def koppen(mapa_temperatura,mapa_temperatura_mitad_año,mapa_presipitacion,mapa_
     #outputToFile(outfileName, buildOutput(mapa_temperatura,mapa_temperatura_mitad_año,mapa_presipitacion,mapa_presipitacion_mitad_año, tempProfile, precProfile, outProfile, mode))
     imagen = buildOutput(mapa_temperatura,mapa_temperatura_mitad_año,mapa_presipitacion,mapa_presipitacion_mitad_año, tempProfile, precProfile, outProfile, mode)
     return imagen
+

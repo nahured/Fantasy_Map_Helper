@@ -1,11 +1,10 @@
 from PIL import Image, ImageEnhance, ImageOps,ImageDraw
+from tkinter import filedialog
+from tqdm import *
 
 
 import math
 
-#import skcc
-
-from calculadoras import skcc
 
 
 
@@ -125,3 +124,97 @@ def sombra_de_lluvia(img,alt_max,Alt_viento,equador_diam):
                 continue
 
     return newimg
+
+
+def flujo_viento(link_imagen):
+    imagen = Image.open(link_imagen)
+    flecha_imagen = Image.open("calculadoras\\flecha.png")
+    
+    ancho,alto = imagen.size
+    nueva_imagen = Image.new("RGBA",(ancho,alto),(0, 0, 0, 0))
+    nuevo_tamano = (int(ancho/6),int(ancho/6))
+    flecha_imagen = flecha_imagen.resize(nuevo_tamano)
+
+    for x in range(nuevo_tamano[0]):
+        print(f"\rProgreso: {x} de {nuevo_tamano[0]}", end="", flush=True)
+        for y in range(nuevo_tamano[0]):
+            nueva_imagen.paste(flecha_imagen,(0,0))
+    
+    nueva_imagen.show
+
+
+
+def latitudes(lista_de_latitudes):# aca traza una linea en los limites de inclinacion del planeta con respecto a su sol
+    imagen_file = filedialog.askopenfilename() # cargamos la ruta de la imagen
+    save_iamgen = filedialog.asksaveasfilename(defaultextension=".png") # guardamos la ruta de la imagen
+    imagen_pil = Image.open(imagen_file) # la importamos a pillow
+
+    ancho,alto = imagen_pil.size  #optener el ancho y el alto de la iamgen
+
+    new_imagen = Image.new("RGBA",(ancho,alto),(0,0,0,0)) # creamos una nueva imagen
+
+    for x in range(ancho): # recorremos la imagen
+        for y in range(alto):
+            grado,ns = calcular_latitus(y,alto) # aca vemos en que latitud esta y
+
+            if abs(grado) in lista_de_latitudes: # un if para verificar si y esta entre los grados 23 y 24
+                new_imagen.putpixel((x,y),(255,0,0)) # aca pintamos ese pixel de rojo
+
+    
+    new_imagen.save(save_iamgen) # guardamos la imagen
+
+
+def mapa_distancia_interna(diametro,mar,radio_interno):
+    imagen_file = filedialog.askopenfilename() # cargamos la ruta de la imagen
+    save_iamgen = filedialog.asksaveasfilename(defaultextension=".png") # guardamos la ruta de la imagen
+    imagen_pil = Image.open(imagen_file) # la importamos a pillow
+
+    ancho,alto = imagen_pil.size # optener el ancho y el alto de la iamgen
+
+    new_imagen = Image.new("RGBA",(ancho,alto),(0,0,0,0)) # creamos una nueva imagen
+    comienzo = [0,0]
+
+    for y in range(alto):
+        #print(f"\r {y}/{alto}",end="",flush=True)
+        contador = 0
+        lista_cruz = []
+        grado,ns = calcular_latitus(y,alto) # calcular la latitud
+        diametro_latitud = diametro_planeta(grado,diametro) # calcular el diametro en una latitud
+        km_en_y = int(regla_de_tres(diametro_latitud,ancho,radio_interno))
+        #print(km_en_y,"  ",ancho)
+        #"""
+        for x in range(ancho):
+            alt_pixel_color = imagen_pil.getpixel((x,y))
+            altura = regla_de_tres(255,100,alt_pixel_color[0]) # da el porcentaje de la altura
+            if altura >= mar:
+                if contador <= km_en_y:
+                    new_imagen.putpixel((x,y),(0,255,0))
+                contador += 1
+                
+            elif altura <= mar:
+                contador = 0
+        #"""
+        
+    new_imagen.save(save_iamgen)
+
+
+def coordenadas_distancias(latitud1, latitud2, radio_tierra):
+    # Conversión de grados decimales a radianes
+    latitud1_rad = math.radians(latitud1)
+    latitud2_rad = math.radians(latitud2)
+
+    # Cálculo de la distancia aproximada usando la fórmula del semiverseno
+    distancia = radio_tierra * math.acos(math.sin(latitud1_rad) * math.sin(latitud2_rad) + 
+                                         math.cos(latitud1_rad) * math.cos(latitud2_rad))
+
+    return distancia
+
+
+
+Tamaño_de_píxel_x,Tamaño_de_píxel_y =	0.003741101310077289948,-0.003741101310077289948
+
+Anchura =	7198
+Altura = 	4228
+
+print(Anchura*Tamaño_de_píxel_x)
+print(Altura*Tamaño_de_píxel_y)

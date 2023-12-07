@@ -21,6 +21,7 @@ class Biomas():
         comp =skcc.verificar_color("t",img)
         if comp:
             messagebox.showerror("color invalido",f"en el pixel {comp[0]} el color no es correcto con R={comp[1][0]} G={comp[1][1]} B={comp[1][2]}")
+            self.mapa_temperatura_inicio = img
         else:
             self.mapa_temperatura_inicio = img
     
@@ -29,6 +30,7 @@ class Biomas():
         comp =skcc.verificar_color("t",img)
         if comp:
             messagebox.showerror("color invalido",f"en el pixel {comp[0]} el color no es correcto con R={comp[1][0]} G={comp[1][1]} B={comp[1][2]}")
+            self.mapa_temperatura_mitad = img
         else:
             self.mapa_temperatura_mitad = img
     
@@ -37,6 +39,7 @@ class Biomas():
         comp =skcc.verificar_color("p",img)
         if comp:
             messagebox.showerror("color invalido",f"en el pixel {comp[0]} el color no es correcto con R={comp[1][0]} G={comp[1][1]} B={comp[1][2]}")
+            self.mapa_presipitacion_inicio = img
         else:
             self.mapa_presipitacion_inicio = img
     
@@ -45,6 +48,7 @@ class Biomas():
         comp =skcc.verificar_color("p",img)
         if comp:
             messagebox.showerror("color invalido",f"en el pixel {comp[0]} el color no es correcto con R={comp[1][0]} G={comp[1][1]} B={comp[1][2]}")
+            self.mapa_presipitacion_mitad = img
         else:
             self.mapa_presipitacion_mitad = img
     
