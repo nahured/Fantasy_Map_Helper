@@ -1,61 +1,130 @@
+"""
+problema
+
+crear una funcion que me cree un collague con el mapa original a un tamaño x 
+
+input: puntos opuestos de las cuadriculas, ubicacion del proyecto, tamaño de las imagenes.
+
+output: collage echo, ubicacion del proyecto, informacion de cada subdivicion de la imagen y en donde lo tiene que guardar y que nombre tienen
+
+
+"""
+
 from PIL import Image
-from tkinter import filedialog
 
-kColorTableDefault = {(11, 36, 250):'Af', (76, 171, 247):'As', (76, 171, 247):'Aw', (21, 123, 251):'Am', 
-               (199, 253, 92):'Cfa', (255, 253, 56):'Csa', (153, 253, 154):'Cwa',
-               (109, 253, 70):'Cfb', (198, 197, 41):'Csb', (103, 197, 104):'Cwb',
-               (60, 197, 35):'Cfc',
-               (45, 255, 254):'Dfa', (252, 40, 251):'Dsa', (172, 179, 253):'Dwa',
-               (66, 200, 252):'Dfb', (196, 29, 197):'Dsb', (92, 122, 216):'Dwb',
-               (16, 126, 124):'Dfc', (149, 55, 147):'Dsc', (77, 84, 178):'Dwc',
-               (6, 69, 93):'Dfd', (149, 101, 148):'Dsd', (50, 14, 133):'Dwd',
-               (178, 178, 178):'ET', (104, 104, 104):'EF',
-               (243, 162, 39):'BSh', (254, 218, 108):'BSk', (251, 13, 27):'BWh', (252, 151, 151):'BWk'}
-
-kColor_paint = {(11, 36, 250):(9,9,9),(76, 171, 247):(18,18,18),(21, 123, 251):(27,27,27),
-                (199, 253, 92):(36,36,36),(255, 253, 56):(45,45,45),(153, 253, 154):(54,54,54),
-                (109, 253, 70):(63,63,63),(198, 197, 41):(72,72,72),(103, 197, 104):(81,81,81),
-                (60, 197, 35):(91,91,91),(45, 255, 254):(100,100,100),(252, 40, 251):(109,109,109),
-                (172, 179, 253):(118,118,118),(66, 200, 252):(127,127,127),(196, 29, 197):(136,136,136),
-                (92, 122, 216):(145,145,145),(16, 126, 124):(154,154,154),(149, 55, 147):(163,163,163),
-                (77, 84, 178):(173,173,173),(6, 69, 93):(182,182,182),(149, 101, 148):(191,191,191),
-                (50, 14, 133):(200,200,200),(178, 178, 178):(209,209,209),(104, 104, 104):(218,218,218),
-                (243, 162, 39):(227,227,227),(254, 218, 108):(236,236,236),(251, 13, 27):(245,245,245),
-                (252, 151, 151):(255,255,255),(107, 165, 210):(0,0,0)}
-
-
-colores = [(11, 36, 250),(76, 171, 247), (21, 123, 251),(199, 253, 92), (255, 253, 56), (153, 253, 154),(109, 253, 70), (198, 197, 41), (103, 197, 104),(60, 197, 35),(45, 255, 254), (252, 40, 251), (172, 179, 253),(66, 200, 252), (196, 29, 197), (92, 122, 216),(16, 126, 124), (149, 55, 147), (77, 84, 178),(6, 69, 93), (149, 101, 148), (50, 14, 133),(178, 178, 178), (104, 104, 104),(243, 162, 39), (254, 218, 108),(251, 13, 27),(252, 151, 151)]
-
-gris = [(9,0,0),(18,0,0),(27,0,0),(36,0,0),(45,0,0),(54,0,0),(63,0,0),(72,0,0),(81,0,0),(91,0,0),(100,0,0),(109,0,0),(118,0,0),(127,0,0),(136,0,0),(145,0,0),(154,0,0),(163,0,0),(173,0,0),(182,0,0),(191,0,0),(200,0,0),(209,0,0),(218,0,0),(227,0,0),(236,0,0),(245,0,0),(255,0,0)]
-regla_de_tres = lambda valor_conocido_deseado, valor_deseado, valor_conocido : (valor_conocido * valor_deseado) / valor_conocido_deseado
-
+# como funciona la funcion
 
 """
-color = "kColor_paint = {"
-for i in range(len(colores)):
-    rojo = regla_de_tres(len(colores),255,i+1)
-    asd = f"{colores[i]}:({gris[i][0]},{gris[i][0]},{gris[i][0]}),"
-    color += asd
+1-- calcula todas las imagenes que estan dentro de los 2 puntos que ingresamos
 
-color += "}"
-print(color)
+2-- identificar quienes son las imagenes de nivel superior a lo cuales conforman
+   crear una lista con todas las imagenes posibles 
 
-input()
+3-- usar la lista para identificar cuales de las imagenes existen y cuales 
+    son las que tenemos que recortar y separar las listas en imagenes existentes y magenes que no existen
+
+4-- recortar y guardar las imagenes 
+
+5-- crear un collague con las imagenes
+
+6-- crear un json con la informacion de las subdiviciones de las imagenes
+
+7-- guardar el json y el collage
+
 """
 
-imagen_ruta = filedialog.askopenfilename()
-guardar = filedialog.asksaveasfilename(defaultextension=".png")
+# 1-- 
 
-img = Image.open(imagen_ruta)
+"""
+crear una funcion que me retorne una lista con los nombres  de cada imagen que 
+pertenezcan a la cuadricula creada por dos puntos (l x y) como inputs
 
-ancho,alto = img.size
+casos limites son en los extremos de las cuadriculas por ejemplo en los x minimos y x maximos en donde el punto a es el x maximo y el punto b es el x minimo
+esto tiene que solucionarse que cuando x llega a su maximo este regrese a 0 y continue contando
+"""
 
-img_new = Image.new("RGB",img.size,(0,0,0))
 
-for x in range(ancho):
-    for y in range(alto):
-        pixel = img.getpixel((x,y))
 
-        img_new.putpixel((x,y),kColor_paint[pixel])
 
-img_new.save(guardar)
+
+# 2-- ya creado
+regla_de_tres = lambda a, b, c: (b * c) / a if a != 0 else None
+
+def ima_carp_por_nivel(nivel)->int:
+    """
+    retorna la cantidad de carpetas e imagenes del nivel de zoom ingresado
+    """
+
+    imagenes = (2**nivel)
+    carpetas = imagenes*2
+    return (imagenes,carpetas)
+
+
+def padre_ref(nivel,carpeta,imagen)->tuple[tuple[float,float,float],tuple[float,float,float]]:
+    """
+    encontrar cual es la imagen superior, y en que cuadrante de la imagen superior esta el nodo seleccionado
+    """
+    carpeta+=1
+    imagen+=1
+    nIma,nCarp = ima_carp_por_nivel(nivel)
+    carpeta1 = regla_de_tres(nCarp,nIma,carpeta)
+    imagen1 = regla_de_tres(nIma,nIma/2,imagen)
+    Carpeta = -(-regla_de_tres(nCarp,nIma,carpeta)//1)
+    Imagen = -(-regla_de_tres(nIma,nIma/2,imagen)//1)
+    pos_1 = False if not((carpeta1-0.5)%1==0 and (imagen1-0.5)%1==0.5) else True
+    pos_2 = False if not((carpeta1-0.5)%1==0.5 and (imagen1-0.5)%1==0.5) else True
+    pos_3 = False if not((carpeta1-0.5)%1==0 and (imagen1-0.5)%1==0) else True
+    pos_4 = False if not((carpeta1-0.5)%1==0.5 and (imagen1-0.5)%1==0) else True
+
+
+    return (int(nivel-1),int(Carpeta-1),int(Imagen-1)),(pos_1,pos_2,pos_3,pos_4)
+
+# 3--
+"""
+se tiene que navegar por las carpetas e identificar desde los niveles 
+superiores a niveles inferiores que imagenes existen para aprovecharlos 
+
+crear 2 listas por nivel
+
+lista1 de iamgenes existentes con l x y
+lista2 de imagenes que no existen 
+
+"""
+
+
+
+# 4--
+"""
+tienen que ingresar la lista de imagenes y subdicidir las imagenes en 4 y guardarlos en una lista nueva
+y si la lista de imagenes existentes no esta vacia, agregar esa imagen a la lista de salida y solo retornar una unica lista 
+"""
+
+
+# 5--
+"""
+una ves recorrido toda la lista y las imagenes finales ya esten lista en una sola lista crear un collage de la lista y guardarlo
+"""
+
+
+carpeta = r"F:\\obsidian\\ProyectoReinado\\Recursos\\imagenes\\mapa"
+imagenr = carpeta + "\\" + "52.png"
+
+guardar = carpeta + "\\" + "test"
+
+imagenes = Image.open(imagenr)
+
+ancho,alto = imagenes.size
+
+ancho2= ancho/2
+alto2 = alto/2
+
+imagen_a = imagenes.crop((0, 0, ancho2, alto2))
+imagen_b = imagenes.crop((ancho2, 0, ancho, alto2))
+imagen_c = imagenes.crop((0, alto2, ancho2, alto))
+imagen_d = imagenes.crop((ancho2, alto2, ancho, alto))
+
+
+print(imagen_a)
+print(imagen_b)
+print(imagen_c)
+print(imagen_d)
