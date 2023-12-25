@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 from tkinter import filedialog
 
 from rich.console import Console
+from rich import print
 
 consola = Console()
 
@@ -80,66 +81,142 @@ def tileLista(l:int,x0:int,y0:int,xF:int,yF:int)->list[list]:
     return listaImagenes
 
 
-def listaPadre(lista:list):
+def listaPadre(lista: list):
     temp = []
+    elementos_encontrados = set()
+
     if type(lista[0][0]) == tuple and type(lista[0][0][0]) == int:
         for i in lista:
             temp2 = []
             for j in i:
-                padreRef = padre_ref(j[0],j[1],j[2])
-                temp2.append((j,padreRef))
-            temp.append(temp2)
+                padre_ref_elemento = (j[0], j[1], j[2])
+                if padre_ref_elemento not in elementos_encontrados:
+                    padreRef = padre_ref(j[0], j[1], j[2])
+                    temp2.append((j, padreRef))
+                    elementos_encontrados.add(padre_ref_elemento)
+            if len(temp2) >= 1: 
+                temp.append(temp2)
     else:
         for i in lista:
             temp2 = []
             for j in i:
                 cos = j[1][0]
-                padreRef = padre_ref(cos[0],cos[1],cos[2])
-                temp2.append((j[1][0],padreRef))
-            temp.append(temp2)
-    
+                padre_ref_elemento = (cos[0], cos[1], cos[2])
+                if padre_ref_elemento not in elementos_encontrados:
+                    padreRef = padre_ref(cos[0], cos[1], cos[2])
+                    temp2.append((j[1][0], padreRef))
+                    elementos_encontrados.add(padre_ref_elemento)
+            if len(temp2) >= 1: 
+                temp.append(temp2)
 
     return temp
 
-def armardor(path,l:int,x0:int,y0:int,xF:int,yF:int):
+
+def tiles_totales(l:int,x0:int,y0:int,xF:int,yF:int):
     a =tileLista(l,x0,y0,xF,yF)
-    imagenes:dict = {}
-    imagenes[str(l)] = a
+    tiles:dict = {}
+    tiles[l] = a
 
     for i in range(l,0,-1):
         if a != False:
             f = listaPadre(a)
-            imagenes[f[0][1][1][0][0]] = f
+            tiles[f[0][1][1][0][0]] = f
             a = False
         else:
             f = listaPadre(f)
-            imagenes[f[0][1][1][0][0]] = f
+            tiles[f[0][1][1][0][0]] = f
+    return tiles
 
+def tiles_existentes(formato,path,diccionario:dict):
+    valorTemporal:bool = True # indicamos que es el primer valor porque el primer valor se recorre de manera distinta
+    existentes:dict = {}
+    for i2 in diccionario:
+        listaTemp:list = []
+        if valorTemporal == True:
+            for i in diccionario[i2]:
+                listaTemp2 = []
+                for j in i:
+                    ruta = path + f"\\{j[0]}\\{j[1]}\\{j[2]}"+formato
+                    existe = os.path.exists(ruta)
+                    listaTemp2.append(existe)
+                valorTemporal = False
+                listaTemp.append(listaTemp2)
+        else:
+            for i in diccionario[i2]:
+                listaTemp2 = []
+                for j in i:
+                    rut = j[1][0]
+                    ruta = path + f"\\{rut[0]}\\{rut[1]}\\{rut[2]}"+formato
+                    existe = os.path.exists(ruta)
+                    listaTemp2.append(existe)
+                listaTemp.append(listaTemp2)
+        existentes[i2] = listaTemp
+        
+    return existentes
+
+def cortar_imagen(path,imagen,lista:list[bool,bool,bool,bool]):
+    if not imagen:
+        img = Image.open(path)
+    else:
+        img = imagen
+    ancho,alto = img.size
+    ancho2 = ancho/2
+    alto2 = alto/2
+    cuadrantes = [(0,0,ancho2,alto2),(ancho2,0,ancho,alto2),(0,alto2,ancho2,alto),(ancho2,alto2,ancho,alto)]
+    for i in range(4):
+        if lista[i] == True:
+            cortar = cuadrantes[i]
+            break
+        else:
+            pass
     
+    img2 = img.crop(cortar)
+    ancho,alto = img2.size
+    img3 = img2.resize((ancho*2,alto*2))
+    return img3
+
+def opterne_imagenes(formato,path,diccionario:dict):
+    imagenes:dict = {}
+    clavesTotales = list(diccionario['total'])
+    for i in clavesTotales:
+        a = diccionario['total'][i]
+        listaTemp = []
+        for j in a:
+            listaTemp2 = []
+            for k in j:
+                ruta = path + f"\\{k[0]}\\{k[1]}\\{k[2]}"+formato
+                if not os.path.exists(ruta):
+                    listaPath = []
+                    ki = k
+                    for i in range(ki[0],0,-1):
+                        listaPath.append(k)
+                        k,bol = padre_ref(k[0],k[1],k[2])
+                        if os.path.exists(path + f"\\{k[0]}\\{k[1]}\\{k[2]}"+formato):
+                            si = i
+                            listaPath.append(k)
+                            break
+                    
+                    primero = True
+                    for i in listaPath.reverse():
+                        if primero:
+                            ruta = 
+                            cortar_imagen()
+                        pass
+
+
+        
+
+def armador(formato,path,l:int,x0:int,y0:int,xF:int,yF:int):
+    imagenes:dict = {}
+    imagenes["total"] = tiles_totales(l,x0,y0,xF,yF)
+    imagenes["existentes"] = tiles_existentes(formato,path,imagenes["total"])
+    imagenes["imagenes"] = opterne_imagenes(formato,path,imagenes)
     return imagenes
 
 ruta = "D:\\programa\\cesium\\Cesium-1.112\\Build\\CesiumUnminified\\Assets\\Textures\\Mundo"
 
-lel = armardor(ruta,2,4,0,2,3)
+formato = ".png"
+lel = armador(formato,ruta,3,4,0,2,3)
 
-for i in lel:
-    print(i)
-    print(f"-------\n{lel[i]}\n-------")
-
-"""
-a = tileLista(2,4,0,2,3)
-f = listaPadre(a)
-f2 = listaPadre(f)
-
-
-print("----------")
-for i in a:
-    print(i)
-print("----------")
-for i in f:
-    print(i)
-print("----------")
-for i in f2:
-    print(i)
-print("----------")
-"""
+#consola.clear(True)
+#print(lel)
