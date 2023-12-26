@@ -9,6 +9,7 @@ import sys
 from PIL import Image # lo usamos para abrir guardar, modificar una imagen
 import xml.etree.ElementTree as ET
 from tkinter import filedialog
+import json
 
 from rich.console import Console
 from rich import print
@@ -129,8 +130,12 @@ def cortar_imagen(path,imagen,lista:list[bool,bool,bool,bool]):
 def obtener_imagen(path,formato,hijo):
     padre, bol = padre_ref(hijo[0],hijo[1],hijo[2])
     ruta = path + f"\\{padre[0]}\\{padre[1]}\\{padre[2]}"+formato
+    rutaHijo = path + f"\\{hijo[0]}\\{hijo[1]}\\{hijo[2]}"+formato
     
-    if os.path.exists(ruta):
+    if os.path.exists(rutaHijo):
+        img1 = Image.open(rutaHijo)
+        return img1
+    elif os.path.exists(ruta):
         img2 = cortar_imagen(ruta,False,bol)
         return img2
     else:
@@ -138,8 +143,25 @@ def obtener_imagen(path,formato,hijo):
         img3 = cortar_imagen(ruta,imgTemp,bol)
         return img3
 
-def collage(path,formato,punto1,punto2,nivel,tamaño):
+
+
+def manejar_json(ruta, accion, diccionario=None):
+    if accion == 'guardar':
+        with open(ruta, 'w') as archivo:
+            json.dump(diccionario, archivo)
+
+    elif accion == 'leer':
+        with open(ruta, 'r') as archivo:
+            diccionario_leido = json.load(archivo)
+            return diccionario_leido
+
+
+def collage(path,formato,punto1,punto2,nivel,tamaño,nombre):
+    diccionario = {}
     listaHijos = tileLista(nivel,punto1[0],punto1[1],punto2[0],punto2[1])
+    diccionario["imagenes"] = listaHijos
+    diccionario["tamaño"] = tamaño
+    diccionario["formato"] = formato
     alto = (len(listaHijos))*tamaño
     ancho = (len(listaHijos[0]))*tamaño
     img = Image.new("RGB",(ancho,alto),(255,0,0))
@@ -147,20 +169,51 @@ def collage(path,formato,punto1,punto2,nivel,tamaño):
         for numy,y in enumerate(x):
             imgTemp = obtener_imagen(path,formato,y)
             img.paste(imgTemp,(tamaño*numy,tamaño*numx))
-            #img.show()
-    ruta = path + f"\\imagentemp3"+formato
+    
+    rutaJson = path + f"\\"+nombre+".json"
+    ruta = path + f"\\"+nombre+formato
+    diccionario["path"] = path
+    diccionario["ruta"] = ruta
+    manejar_json(rutaJson,'guardar',diccionario)
     img.save(ruta)
+
+def desmontar_collage(json):
+    diccionario:dict = manejar_json(json,'leer')
+    listaImagenes = diccionario['imagenes']
+    img = Image.open(diccionario['ruta'])
+    path = diccionario['path']
+    tamaño = diccionario['tamaño']
+    formato = diccionario["formato"]
+
+    for numx, x in enumerate(listaImagenes):
+        for numy, y in enumerate(x):
+            rutaCarpeta = path +f"\\{y[0]}"
+            rutaSubCarpeta = path +f"\\{y[0]}\\{y[1]}"
+            ruta = path +f"\\{y[0]}\\{y[1]}\\{y[2]}"+formato
+            crear_Carpetas(rutaCarpeta)
+            crear_Carpetas(rutaSubCarpeta)
+            # Obtener las coordenadas de corte
+            x_corte = tamaño * numy
+            y_corte = tamaño * numx
+
+            # Cortar la imagen
+            img_cortada = img.crop((x_corte, y_corte, x_corte + tamaño, y_corte + tamaño))
+            img_cortada.save(ruta)
+    
 
 
 ruta = "D:\\programa\\cesium\\Cesium-1.112\\Build\\CesiumUnminified\\Assets\\Textures\\Mundo"
+jsonruta = "D:\\programa\\cesium\\Cesium-1.112\\Build\\CesiumUnminified\\Assets\\Textures\\Mundo\\ImgenTer.json"
 
 formato = ".png"
 
-punto1 = (30,8)
-punto2 = (2,10)
-nivel = 4
+punto1 = (3,3)
+punto2 = (5,5)
+nivel = 3
 tamaño = 1024
+nombre = "ImgenTer"
 
-#print(padre_ref(3,5,5))
+desmontar_collage(jsonruta)
 
-collage(ruta,formato,punto1,punto2,nivel,tamaño)
+#collage(ruta,formato,punto1,punto2,nivel,tamaño,nombre)
+
